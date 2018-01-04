@@ -65,9 +65,8 @@ public class BlockChain {
 		while (temp != null) {
 			s += temp.toString() + "\n";
 			temp = temp.nextNode;
-
-
 		}
+    
 		return s;
 	}
 
