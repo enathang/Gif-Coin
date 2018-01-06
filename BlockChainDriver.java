@@ -1,6 +1,7 @@
 import java.util.Scanner;
 import java.security.NoSuchAlgorithmException;
 
+// Gif-Bank: The UI and communcation method between ledgers
 public class BlockChainDriver {
 
 	private static void printHelp() {
@@ -109,8 +110,9 @@ public class BlockChainDriver {
   }
 
   private static void printWelcomeMessage() {
+    System.out.println("");
     System.out.println("\n\n========================================================");
-    System.out.println("Hello and welcome to Gif-Coin, the new standard in");
+    System.out.println("Hello and welcome to Gif-Bank, the new standard in");
     System.out.println("crypto-currency. If you are new, you can type 'info' for");
     System.out.println("info or 'help' for a list of commands.");
     System.out.println("\nOtherwise, have fun!");
@@ -120,10 +122,9 @@ public class BlockChainDriver {
 	public static void main(String[] args) throws NoSuchAlgorithmException {
     printWelcomeMessage();
 
-    int amt = Integer.parseInt(args[0]);
-		BlockChain bc = new BlockChain(amt);
+		BlockChain bc = new BlockChain(50);
     UserList ul = new UserList();
-    ul.addUser("Satori", 100);
+    ul.addUser("Satoshi", 50);
 		runBlockChainLoop(bc, ul);
 	}
 
