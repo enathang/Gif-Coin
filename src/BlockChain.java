@@ -4,18 +4,33 @@ public class BlockChain {
 	Node first;
 	Node last;
 
-	BlockChain(int initial) throws NoSuchAlgorithmException {
+	/**
+   * Create a new blockchain with the given amount
+   *
+   * @param initial the initial amount
+   */
+	public BlockChain(int initial) throws NoSuchAlgorithmException {
 		Block b = new Block(0, initial, null);
 		Node n = new Node(b, null);
 		this.first = n;
 		this.last = n;
 	}
 
-	Block mine(int amount) throws NoSuchAlgorithmException {
+	/**
+   * Mine a new block and return it
+   *
+   * @param amount the amount of the transaction
+   */
+	public Block mine(int amount) throws NoSuchAlgorithmException {
 		Block b = new Block(getSize(), amount, this.last.data.hash);
 		return b;
 	}
 
+	/**
+   * Return the size of the blockchain
+   *
+   * @return the size of the blockchain
+   */
 	public int getSize() {
 		Node temp = this.first;
 		int count = 0;
@@ -26,11 +41,21 @@ public class BlockChain {
 		return count;
 	}
 
+	/**
+   * Append the given block to the end of the blockchain
+   *
+   * @param blk the block to append
+   */
 	public void append(Block blk) throws IllegalArgumentException {
 		this.last.nextNode = new Node(blk, null);
 		this.last = this.last.nextNode;
 	}
 
+	/**
+   * Removes the last block in the blockchain
+   *
+   * @return Returns whether the removal was successful
+   */
 	public boolean removeLast() {
 		if (getSize() < 2) {
 			return false;
@@ -45,20 +70,30 @@ public class BlockChain {
 		return true;
 	}
 
+	/**
+   * Returns the hash of the last block in the chain
+   *
+   * @return the Hash of the last block
+   */
 	public Hash getHash() {
 		return this.last.data.hash;
 	}
 
+	/**
+   * Returns whether or not the blockchain is valid
+   *
+   * @return whether or not the blockchain is valid
+   */
 	public boolean isValidBlockChain() {
 		// TODO
 		return true;
 	}
 
-	public void printBalances() {
-		// TODO
-		System.out.println("balances: ");
-	}
-
+	/**
+   * Returns the blockchain in a readable string
+   *
+   * @return the blockchain as a string
+   */
 	public String toString() {
 		String s = "";
 		Node temp = this.first;

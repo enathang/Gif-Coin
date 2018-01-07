@@ -11,7 +11,7 @@ public class UserMap {
  * Creates an empty usermap
  */
   public UserMap() {
-    this.userlist = new HashMap<String, User>();
+    this.userMap = new HashMap<String, User>();
   }
 
 /**
@@ -20,9 +20,9 @@ public class UserMap {
  * @param  name the name of the user to add
  * @param  initBalance the initial balance of the user(if any)
  */
-  public void addUser(String name, int initBalance) {
-    User newUser = new User(name, initBalance);
-    userlist.put(name, newUser);
+  public void addUser(String name, int initBalance, BlockChain ledger) {
+    User newUser = new User(name, initBalance, ledger);
+    userMap.put(name, newUser);
   }
 
   /**
@@ -32,7 +32,7 @@ public class UserMap {
    * @return      the user that corresponds to the given name
    */
   public User getUser(String name) {
-    return usermap.get(name);
+    return userMap.get(name);
   }
 
   /**
@@ -41,7 +41,7 @@ public class UserMap {
    * @param  bc the new blockchain
    */
   public void updateLedgers(BlockChain bc) {
-    for (String key : userMap.getKeys()) {
+    for (String key : userMap.keySet()) {
       userMap.get(key).updateLedger(bc);
     }
   }

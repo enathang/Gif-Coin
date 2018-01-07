@@ -53,12 +53,12 @@ public class BlockChainDriver {
     }
   }
 
-  private static void createNewUser(UserList ul, Scanner s) {
+  private static void createNewUser(UserMap users, Scanner s, BlockChain ledger) {
     System.out.print("Name: ");
     String name = s.nextLine();
     System.out.print("Initial balance: ");
     int initBalance = s.nextInt();
-    ul.addUser(name, initBalance);
+    users.addUser(name, initBalance, ledger);
   }
 
   public static void printInfo() {
@@ -66,7 +66,7 @@ public class BlockChainDriver {
     System.out.println("blockchain to create a centralized, safe, easy currency");
   }
 
-  private static void parseInput(BlockChain bc, UserList ul, Scanner s, String cmd) throws NoSuchAlgorithmException {
+  private static void parseInput(BlockChain bc, UserMap users, Scanner s, String cmd) throws NoSuchAlgorithmException {
 
     switch (cmd) {
     case "mine":
@@ -76,7 +76,7 @@ public class BlockChainDriver {
       transfer(bc, s);
       break;
     case "report":
-      bc.printBalances();
+      // bc.printBalances();
       break;
     case "help":
       printHelp();
@@ -85,7 +85,7 @@ public class BlockChainDriver {
       printInfo();
       break;
     case "new user":
-      createNewUser(ul, s);
+      createNewUser(users, s, bc);
       break;
     case "quit":
       break;
@@ -96,14 +96,14 @@ public class BlockChainDriver {
 
   }
 
-  private static void runBlockChainLoop(BlockChain bc, UserList ul) throws NoSuchAlgorithmException {
+  private static void runBlockChainLoop(BlockChain bc, UserMap users) throws NoSuchAlgorithmException {
     Scanner s = new Scanner(System.in);
 
     String cmd = "";
 		while (!cmd.equals("quit")) {
 			System.out.print("\nCommand: ");
 			cmd = s.nextLine();
-      parseInput(bc, ul, s, cmd);
+      parseInput(bc, users, s, cmd);
 		}
 
 		s.close();
@@ -123,9 +123,9 @@ public class BlockChainDriver {
     printWelcomeMessage();
 
 		BlockChain bc = new BlockChain(50);
-    UserList ul = new UserList();
-    ul.addUser("Satoshi", 50);
-		runBlockChainLoop(bc, ul);
+    UserMap users = new UserMap();
+    users.addUser("Satoshi", 50, bc);
+		runBlockChainLoop(bc, users);
 	}
 
 }
