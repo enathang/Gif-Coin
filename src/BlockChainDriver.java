@@ -10,6 +10,7 @@ public class BlockChainDriver {
 		System.out.println("\tappend: appends a new block onto the end of the chain");
 		System.out.println("\treport: reports the balances of Alice and Bob");
 		System.out.println("\tnew user: creates a new user to trade Gif-coins");
+		System.out.println("\tprint users: prints out all current users's pk and balances");
 		System.out.println("\thelp: prints this list of commands");
 		System.out.println("\tquit: quits the program");
 	}
@@ -26,9 +27,9 @@ public class BlockChainDriver {
 
   // Transferring money
   private static void transfer(BlockChain bc, Scanner s) throws NoSuchAlgorithmException {
-    System.out.print("Transfer from: ");
+    System.out.print("Transfer from(secret key): ");
     String transferFrom = s.nextLine();
-    System.out.print("Transfer to: ");
+    System.out.print("Transfer to(public address): ");
     String transferTo = s.nextLine();
     System.out.print("Amount transferred: ");
     int amtAppend = s.nextInt();
@@ -39,7 +40,12 @@ public class BlockChainDriver {
     approveTransaction(bc, app);
   }
 
+	private static void printUsers(UserMap users) {
+		System.out.println(users.toString());
+	}
+
   private static void approveTransaction(BlockChain bc, Block app) {
+		// TODO
     bc.append(app);
   }
 
@@ -53,12 +59,12 @@ public class BlockChainDriver {
     }
   }
 
-  private static void createNewUser(UserMap users, Scanner s, BlockChain ledger) {
-    System.out.print("Name: ");
-    String name = s.nextLine();
+  private static void createNewUser(UserMap users, Scanner s, BlockChain ledger) throws NoSuchAlgorithmException {
+    System.out.print("Private key: ");
+    String privateKey = s.nextLine();
     System.out.print("Initial balance: ");
     int initBalance = s.nextInt();
-    users.addUser(name, initBalance, ledger);
+    users.addUser(privateKey);
   }
 
   public static void printInfo() {
@@ -87,6 +93,9 @@ public class BlockChainDriver {
     case "new user":
       createNewUser(users, s, bc);
       break;
+		case "print users":
+			printUsers(users);
+			break;
     case "quit":
       break;
     default:
@@ -124,7 +133,7 @@ public class BlockChainDriver {
 
 		BlockChain bc = new BlockChain(50);
     UserMap users = new UserMap();
-    users.addUser("Satoshi", 50, bc);
+    users.addUser("Satoshi");
 		runBlockChainLoop(bc, users);
 	}
 

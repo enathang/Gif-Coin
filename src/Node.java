@@ -8,7 +8,7 @@ public class Node {
    * @param b the block that is held in the Node
    * @param next the next node in the chain
    */
-	Node(Block b, Node next) {
+	public Node(Block b, Node next) {
 		this.data = b;
 		this.nextNode = next;
 	}

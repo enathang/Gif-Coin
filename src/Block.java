@@ -11,6 +11,7 @@ public class Block {
 	long nonce;
 	Hash hash;
 	Block next;
+	String signature;
 
 	/**
    * Creates a new hash with the given nonce and encryption algorithm

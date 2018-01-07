@@ -56,7 +56,7 @@ public class BlockChain {
    *
    * @return Returns whether the removal was successful
    */
-	public boolean removeLast() {
+	private boolean removeLast() {
 		if (getSize() < 2) {
 			return false;
 		}
