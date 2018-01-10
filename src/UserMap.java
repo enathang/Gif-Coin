@@ -1,18 +1,19 @@
 import java.util.Map;
 import java.util.HashMap;
 import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
 
 /**
  * A HashMap<sk, User> of GifCoin users for the bank
  */
 public class UserMap {
-  Map<String, User> userMap;
+  Map<PublicKey, User> userMap;
 
 /**
  * Creates an empty usermap
  */
   public UserMap() {
-    this.userMap = new HashMap<String, User>();
+    this.userMap = new HashMap<PublicKey, User>();
   }
 
 /**
@@ -21,9 +22,9 @@ public class UserMap {
  * @param  name the name of the user to add
  * @param  initBalance the initial balance of the user (if any)
  */
-  public void addUser(String secretKey) {
-    User newUser = new User(secretKey);
-    userMap.put(secretKey, newUser);
+  public void addUser() throws NoSuchAlgorithmException {
+    User newUser = new User();
+    userMap.put(newUser.getPublicKey(), newUser);
   }
   /**
    * Adds a user to the usermap
@@ -31,9 +32,9 @@ public class UserMap {
    * @param  name the name of the user to add
    * @param  initBalance the initial balance of the user (if any)
    */
-    public void addUser(String secretKey, int balance) {
-      User newUser = new User(secretKey, balance);
-      userMap.put(secretKey, newUser);
+    public void addUser(int balance) throws NoSuchAlgorithmException {
+      User newUser = new User(balance);
+      userMap.put(newUser.getPublicKey(), newUser);
     }
 
   /**
@@ -42,8 +43,12 @@ public class UserMap {
    * @param  name the name of the user
    * @return      the user that corresponds to the given name
    */
-  public User getUser(String privateKey) {
-    return userMap.get(privateKey);
+  public User getUser(PublicKey publicKey) {
+    return userMap.get(publicKey);
+  }
+
+  public boolean userExists(PublicKey publicKey) {
+    return (userMap.get(publicKey) == null);
   }
 
   /**
@@ -52,14 +57,14 @@ public class UserMap {
    * @param  bc the new blockchain
    */
   public void updateLedgers(BlockChain bc) {
-    for (String key : userMap.keySet()) {
+    for (PublicKey key : userMap.keySet()) {
       userMap.get(key).updateLedger(bc);
     }
   }
 
   public String toString() {
     String ret = "";
-    for (String key : userMap.keySet()) {
+    for (PublicKey key : userMap.keySet()) {
       ret += userMap.get(key).toString();
     }
 

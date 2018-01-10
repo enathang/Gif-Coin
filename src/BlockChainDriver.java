@@ -1,5 +1,15 @@
 import java.util.Scanner;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+
+import java.security.KeyFactory;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
+import sun.misc.BASE64Decoder;
+import sun.misc.BASE64Encoder;
+
 
 // Gif-Bank: The UI and communcation method between ledgers
 public class BlockChainDriver {
@@ -9,8 +19,8 @@ public class BlockChainDriver {
 		System.out.println("\tmine: discovers the nonce for a given transaction");
 		System.out.println("\tappend: appends a new block onto the end of the chain");
 		System.out.println("\treport: reports the balances of Alice and Bob");
-		System.out.println("\tnew user: creates a new user to trade Gif-coins");
-		System.out.println("\tprint users: prints out all current users's pk and balances");
+		System.out.println("\tcreate user: creates a new user to trade Gif-coins");
+		System.out.println("\tlist users: prints out all current users's pk and balances");
 		System.out.println("\thelp: prints this list of commands");
 		System.out.println("\tquit: quits the program");
 	}
@@ -26,19 +36,60 @@ public class BlockChainDriver {
   }
 
   // Transferring money
-  private static void transfer(BlockChain bc, Scanner s) throws NoSuchAlgorithmException {
+  private static boolean transfer(BlockChain bc, UserMap users, Scanner s) throws NoSuchAlgorithmException {
+    System.out.print("Transfer from(public key): ");
+    PublicKey transferFromPK = stringToPublicKey(s.nextLine());
     System.out.print("Transfer from(secret key): ");
-    String transferFrom = s.nextLine();
-    System.out.print("Transfer to(public address): ");
-    String transferTo = s.nextLine();
-    System.out.print("Amount transferred: ");
-    int amtAppend = s.nextInt();
-    System.out.print("Nonce: ");
-    long nonce = s.nextInt();
+    PrivateKey transferFromSK = stringToPrivateKey(s.nextLine());
 
-    Block app = new Block(bc.getSize()+1, amtAppend, bc.getHash(), nonce);
-    approveTransaction(bc, app);
+		if (!users.userExists(transferFromPK)) {
+			System.out.println("User not found");
+			return false;
+		}
+
+    System.out.print("Transfer to(public address): ");
+    PublicKey transferTo = stringToPublicKey(s.nextLine());
+
+		if (!users.userExists(transferTo)) {
+			System.out.println("User not found");
+			return false;
+		}
+
+    System.out.print("Amount transferred: ");
+    int amt = s.nextInt();
+
+		if (users.getUser(transferFromPK).getBalance() < amt) {
+			System.out.println("Insufficient balance for transfer");
+			return false;
+		}
+
+		// Calculate digital signature
+		Block b = new Block(bc.getSize()+1, amt, bc.getHash());
+		b.signBlock(transferFromSK);
+		if (b.isValid(transferFromPK)) {
+			bc.append(b);
+			return true;
+		} else {
+			System.out.println("Transaction block found invalid");
+			return false;
+		}
   }
+
+	public static PublicKey stringToPublicKey(String key) {
+		byte[] data = base64Decode(key);
+    X509EncodedKeySpec spec = new X509EncodedKeySpec(data);
+    KeyFactory fact = KeyFactory.getInstance("DSA");
+    return fact.generatePublic(spec);
+	}
+
+	public static PrivateKey stringToPrivateKey(String key) {
+		byte[] clear = base64Decode(key);
+    PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(clear);
+    KeyFactory fact = KeyFactory.getInstance("DSA");
+    PrivateKey priv = fact.generatePrivate(keySpec);
+    Arrays.fill(clear, (byte) 0);
+    return priv;
+	}
 
 	private static void printUsers(UserMap users) {
 		System.out.println(users.toString());
@@ -60,11 +111,9 @@ public class BlockChainDriver {
   }
 
   private static void createNewUser(UserMap users, Scanner s, BlockChain ledger) throws NoSuchAlgorithmException {
-    System.out.print("Private key: ");
-    String privateKey = s.nextLine();
     System.out.print("Initial balance: ");
     int initBalance = s.nextInt();
-    users.addUser(privateKey);
+    users.addUser(initBalance);
   }
 
   public static void printInfo() {
@@ -79,7 +128,7 @@ public class BlockChainDriver {
       mineBlock(bc, s);
       break;
     case "transfer":
-      transfer(bc, s);
+      transfer(bc, users, s);
       break;
     case "report":
       // bc.printBalances();
@@ -90,10 +139,10 @@ public class BlockChainDriver {
     case "info":
       printInfo();
       break;
-    case "new user":
+    case "create user":
       createNewUser(users, s, bc);
       break;
-		case "print users":
+		case "list users":
 			printUsers(users);
 			break;
     case "quit":
@@ -133,7 +182,8 @@ public class BlockChainDriver {
 
 		BlockChain bc = new BlockChain(50);
     UserMap users = new UserMap();
-    users.addUser("Satoshi");
+    users.addUser(50);
+		users.addUser(10);
 		runBlockChainLoop(bc, users);
 	}
 

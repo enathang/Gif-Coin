@@ -10,7 +10,7 @@ public class BlockChain {
    * @param initial the initial amount
    */
 	public BlockChain(int initial) throws NoSuchAlgorithmException {
-		Block b = new Block(0, initial, null);
+		Block b = new Block(0, initial, null, null);
 		Node n = new Node(b, null);
 		this.first = n;
 		this.last = n;
@@ -22,7 +22,7 @@ public class BlockChain {
    * @param amount the amount of the transaction
    */
 	public Block mine(int amount) throws NoSuchAlgorithmException {
-		Block b = new Block(getSize(), amount, this.last.data.hash);
+		Block b = new Block(getSize(), amount, "null", this.last.data.hash);
 		return b;
 	}
 

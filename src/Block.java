@@ -4,6 +4,11 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Random;
 
+import java.math.BigInteger;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.Signature;
+
 public class Block {
 	int num;
 	int amount;
@@ -11,7 +16,32 @@ public class Block {
 	long nonce;
 	Hash hash;
 	Block next;
-	String signature;
+	byte[] signature;
+
+	public void signBlock(PrivateKey secretKey) {
+		Signature dsa = Signature.getInstance("SHA1withECDSA");
+    dsa.initSign(secretKey);
+
+		Hash signatureHash = calculateHash(0);
+    byte[] hashByte = signatureHash.data;
+    dsa.update(hashByte);
+
+    // Generate signature
+    this.signature = dsa.sign();
+	}
+
+	/**
+	 * Creates a new block
+	 *
+	 * @param num the number of the block
+	 * @param amount the amount of the transaction
+	 * @param prevHash the previous hash
+	 */
+	public Block(int num, int amount, Hash prevHash) throws NoSuchAlgorithmException {
+		this.num = num;
+		this.amount = amount;
+		this.prevHash = prevHash;
+	}
 
 	/**
    * Creates a new hash with the given nonce and encryption algorithm
@@ -41,7 +71,7 @@ public class Block {
    *
    * @return the nonce
    */
-	private long mineNonce() throws NoSuchAlgorithmException {
+	public long mineNonce() throws NoSuchAlgorithmException {
 		long nonce = 0;
 		Hash h = calculateHash(nonce);
 		while (!h.isValid()) {
@@ -52,37 +82,25 @@ public class Block {
 		return nonce;
 	}
 
-	/**
-   * Creates a new block
-   *
-   * @param num the number of the block
-	 * @param amount the amount of the transaction
-	 * @param prevHash the previous hash
-   */
-	public Block(int num, int amount, Hash prevHash) throws NoSuchAlgorithmException {
-		this.num = num;
-		this.amount = amount;
-		this.prevHash = prevHash;
+	public boolean isValid(PublicKey publicKey) {
+		// Verify signature
+		if (!isValidSignature(publicKey)) {
+			return false;
+		}
 
+		// Mine block
 		this.nonce = mineNonce();
-		this.hash = calculateHash(this.nonce);
+		this.hash = calculateHash(nonce);
+		return true;
 	}
 
-	/**
-	 * Creates a new block
-	 *
-	 * @param num the number of the block
-	 * @param amount the amount of the transaction
-	 * @param prevHash the previous hash
-	 * @param nonce the nonce of the block
-   */
-	public Block(int num, int amount, Hash prevHash, long nonce) throws NoSuchAlgorithmException {
-		this.num = num;
-		this.amount = amount;
-		this.prevHash = prevHash;
-
-		this.nonce = nonce;
-		this.hash = calculateHash(this.nonce);
+	public boolean isValidSignature(PublicKey publicKey) {
+		Signature sig = Signature.getInstance("SHA1withECDSA");
+		sig.initVerify(publicKey);
+		Hash hash = calculateHash(0);
+		sig.update(hash.data);
+		boolean isValid = sig.verify(this.signature);
+		return isValid;
 	}
 
 	/**

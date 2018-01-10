@@ -1,8 +1,8 @@
 # Gif-Coin
-Gif-Coin is an \**in-progress*\* decentralized cryptocurrency and application that leverages BlockChain to authenticate anonymous transactions between users and prevent fraud. This project is an attempt to understand the benefits (and shortcomings) of the underlying implementations of many modern cryptocurrencies.
+Gif-Coin is an *in-progress* decentralized cryptocurrency and application that leverages BlockChain to authenticate anonymous transactions between users and prevent fraud. This project is an attempt to understand the benefits (and shortcomings) of the underlying implementations of many modern cryptocurrencies.
 
 ## Key features
-1) Blockchain featuring SHA-256 encryption
+1) Blockchain featuring SHA-256 encryption and Elliptical Curve Digital Signature Algorithm
 2) Conflict resolution using "proof-of-work"
 3) Decentralized ledgers with full privacy
 

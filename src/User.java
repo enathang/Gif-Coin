@@ -1,43 +1,28 @@
 import java.security.NoSuchAlgorithmException;
+import java.math.BigInteger;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.SecureRandom;
 
 public class User {
-  // Doubles as the address, because there's little need to guard against elliptic curve failures
-  String publicKey;
-  String secretKey;
+  PublicKey publicKey;
+  PrivateKey secretKey;
   BlockChain ledger;
   int balance;
 
-  public User(String secretKey) {
-    this.secretKey = secretKey;
-    this.publicKey = generatePublicKey(secretKey);
+  public User() throws NoSuchAlgorithmException {
+    KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
+    SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+    keyGen.initialize(256, random);
+
+    KeyPair pair = keyGen.generateKeyPair();
+    secretKey = pair.getPrivate();
+    publicKey = pair.getPublic();
+
     this.ledger = new BlockChain(0);
     this.balance = 0;
-  }
-
-  public String generatePublicKey(String privateKey) {
-    byte[] bytes = privateKey.getBytes();
-    int publicKey = 0;
-    int g = Math.random(10); // Substitution for the secp256k1 curve
-    int multiplier = 1;
-
-    for (byte b : bytes) {
-       int val = b;
-       for (int i = 0; i < 8; i++) {
-          int binary = ((val & 128) == 0 ? 0 : 1);
-          val <<= 1;
-          publicKey += binary*g*multiplier;
-          multiplier *= 2;
-       }
-    }
-
-    return Integer.toString(publicKey);
-  }
-
-  private boolean blockIsValid(Block b) {
-    // check public and private key
-    // check the public keys match
-    // mine it
-    return true;
   }
 
   /**
@@ -47,10 +32,21 @@ public class User {
    * @param  initBalance the initial balance of the user (usually 0)
    * @param  ledger the most recent ledger
    */
-  public User(String secretKey, int initBalance) {
-    this.secretKey = secretKey;
-    this.balance = initBalance;
+  public User(int initBalance) throws NoSuchAlgorithmException {
+    KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
+    SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+    keyGen.initialize(256, random);
+
+    KeyPair pair = keyGen.generateKeyPair();
+    secretKey = pair.getPrivate();
+    publicKey = pair.getPublic();
+
     this.ledger = new BlockChain(0);
+    this.balance = initBalance;
+  }
+
+  public int getBalance() {
+    return this.balance;
   }
 
   /**
@@ -59,13 +55,18 @@ public class User {
    * @param  bc the new ledger
    */
   public void updateLedger(BlockChain bc) {
-    if (bc.getSize() > this.size) {
+    if (bc.getSize() > this.ledger.getSize()) {
       this.ledger = bc;
     }
   }
 
+
+  public PublicKey getPublicKey() {
+    return publicKey;
+  }
+
   public String toString() {
-    return "Public key: " + publicKey + ", balance: " + balance + "\n";
+    return "Public key: " + publicKey.toString() + ", balance: " + balance + "\n";
   }
 
 }
