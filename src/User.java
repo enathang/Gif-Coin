@@ -1,10 +1,4 @@
-import java.security.NoSuchAlgorithmException;
-import java.math.BigInteger;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.SecureRandom;
+import java.security.*;
 
 public class User {
   PublicKey publicKey;
@@ -12,6 +6,12 @@ public class User {
   BlockChain ledger;
   int balance;
 
+  /**
+   * Creates a new user by randomly generating a public and secret key and
+   * an empty ledger
+   *
+   * @throws NoSuchAlgorithmException If java.security cannot find the crypto algorithm
+   */
   public User() throws NoSuchAlgorithmException {
     KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
     SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
@@ -26,11 +26,11 @@ public class User {
   }
 
   /**
-   * Creates a new user with a given name, initial balance, and ledger
+   * Creates a new user by randomly generating a public and secret key, an
+   * empty ledger, and an initial balance
    *
-   * @param  name the name of the user
-   * @param  initBalance the initial balance of the user (usually 0)
-   * @param  ledger the most recent ledger
+   * @param  initBalance the initial balance of the user
+   * @throws NoSuchAlgorithmException If java.security cannot find the crypto algorithm
    */
   public User(int initBalance) throws NoSuchAlgorithmException {
     KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
@@ -45,12 +45,18 @@ public class User {
     this.balance = initBalance;
   }
 
+  /**
+   * Returns the balance of the user
+   *
+   * @return the user's balance
+   */
   public int getBalance() {
     return this.balance;
   }
 
   /**
-   * Updates the user's ledger to the new blockchain passed
+   * Updates the user's ledger to the new blockchain passed if there is
+   * more proof of work
    *
    * @param  bc the new ledger
    */
@@ -60,13 +66,25 @@ public class User {
     }
   }
 
-
+  /**
+   * Returns the public key of the user
+   *
+   * @return the user's public key
+   */
   public PublicKey getPublicKey() {
     return publicKey;
   }
 
+  /**
+   * Converts the user instance into a readable string
+   *
+   * @return a string that contains all the user data
+   */
   public String toString() {
-    return "Public key: " + publicKey.toString() + ", balance: " + balance + "\n";
+    KeyStringConverter conv = new KeyStringConverter();
+    return "Public key: \n\n" + conv.publicKeyToString(publicKey)
+      + "\n\nPrivate key(for debugging):\n\n" + conv.privateKeyToString(secretKey)
+      + "\n\nBalance: " + balance + "\n\n";
   }
 
 }

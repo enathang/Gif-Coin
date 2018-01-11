@@ -1,6 +1,8 @@
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SignatureException;
+import java.security.InvalidKeyException;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -18,16 +20,26 @@ public class Block {
 	Block next;
 	byte[] signature;
 
+	/**
+   * Uses the private key to sign the block
+   *
+   * @param  secretKey the secretKey of the user to sign the block
+   */
 	public void signBlock(PrivateKey secretKey) {
-		Signature dsa = Signature.getInstance("SHA1withECDSA");
-    dsa.initSign(secretKey);
+		try {
+			Signature dsa = Signature.getInstance("SHA1withECDSA");
+	    dsa.initSign(secretKey);
 
-		Hash signatureHash = calculateHash(0);
-    byte[] hashByte = signatureHash.data;
-    dsa.update(hashByte);
+			Hash signatureHash = calculateHash(0);
+	    byte[] hashByte = signatureHash.data;
+	    dsa.update(hashByte);
 
-    // Generate signature
-    this.signature = dsa.sign();
+	    this.signature = dsa.sign();
+		} catch (SignatureException | InvalidKeyException e) {
+			System.err.println("Caught Exception: "+e.getMessage());
+		} catch (NoSuchAlgorithmException e) {
+			System.err.println("Caught Exception: "+e.getMessage());
+		}
 	}
 
 	/**
@@ -37,7 +49,7 @@ public class Block {
 	 * @param amount the amount of the transaction
 	 * @param prevHash the previous hash
 	 */
-	public Block(int num, int amount, Hash prevHash) throws NoSuchAlgorithmException {
+	public Block(int num, int amount, Hash prevHash) {
 		this.num = num;
 		this.amount = amount;
 		this.prevHash = prevHash;
@@ -49,20 +61,23 @@ public class Block {
    * @param nonce the given nonce
    * @return the calculated hash
    */
-	private Hash calculateHash(long nonce) throws NoSuchAlgorithmException {
-		MessageDigest md = MessageDigest.getInstance("sha-256");
-
+	private Hash calculateHash(long nonce) {
 		ByteBuffer b = ByteBuffer.allocate(64);
 		b.putInt(this.num);
 		b.putInt(this.amount);
-		if (this.prevHash != null) {
-			b.put(this.prevHash.getData());
-		}
+		if (this.prevHash != null) {b.put(this.prevHash.getData());}
 		b.putLong(nonce);
 
-		md.update(b.array());
-		byte[] h = md.digest();
-		Hash hash = new Hash(h);
+		Hash hash = null;
+		try {
+			MessageDigest md = MessageDigest.getInstance("sha-256");
+			md.update(b.array());
+			byte[] h = md.digest();
+			hash = new Hash(h);
+		} catch (NoSuchAlgorithmException e) {
+			System.err.println("Caught NoSuchAlgorithmException: "+e.getMessage());
+		}
+
 		return hash;
 	}
 
@@ -71,7 +86,7 @@ public class Block {
    *
    * @return the nonce
    */
-	public long mineNonce() throws NoSuchAlgorithmException {
+	public long mineNonce() {
 		long nonce = 0;
 		Hash h = calculateHash(nonce);
 		while (!h.isValid()) {
@@ -82,24 +97,44 @@ public class Block {
 		return nonce;
 	}
 
+	/**
+	 * Returns whether or not the block should be considered valid
+	 *
+	 * @param  publicKey the public key of the user who signed the block
+	 * @return whether or not the signature matches the public key
+	 */
 	public boolean isValid(PublicKey publicKey) {
-		// Verify signature
 		if (!isValidSignature(publicKey)) {
 			return false;
 		}
 
-		// Mine block
 		this.nonce = mineNonce();
 		this.hash = calculateHash(nonce);
 		return true;
 	}
 
+	/**
+   * Returns whether or not the signature on the block was signed by
+	 * the user with the corresponding public key
+   *
+   * @param  publicKey the public key of the user
+   * @return whether or not the specified used signed the block
+   */
 	public boolean isValidSignature(PublicKey publicKey) {
-		Signature sig = Signature.getInstance("SHA1withECDSA");
-		sig.initVerify(publicKey);
-		Hash hash = calculateHash(0);
-		sig.update(hash.data);
-		boolean isValid = sig.verify(this.signature);
+		boolean isValid = false;
+
+		try {
+			Signature sig = Signature.getInstance("SHA1withECDSA");
+			sig.initVerify(publicKey);
+			Hash hash = calculateHash(0);
+			sig.update(hash.data);
+			isValid = sig.verify(this.signature);
+		} catch (NoSuchAlgorithmException e) {
+			System.err.println("Caught Exception: " + e.getMessage());
+		} catch (InvalidKeyException | SignatureException e) {
+			System.err.println("Caught Exception: " + e.getMessage());
+		}
+
 		return isValid;
 	}
 

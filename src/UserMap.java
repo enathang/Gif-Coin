@@ -3,34 +3,28 @@ import java.util.HashMap;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 
-/**
- * A HashMap<sk, User> of GifCoin users for the bank
- */
 public class UserMap {
   Map<PublicKey, User> userMap;
 
-/**
- * Creates an empty usermap
- */
+  /**
+   * Creates an empty usermap<PublicKey, User>
+   */
   public UserMap() {
     this.userMap = new HashMap<PublicKey, User>();
   }
 
-/**
- * Adds a user to the usermap
- *
- * @param  name the name of the user to add
- * @param  initBalance the initial balance of the user (if any)
- */
+  /**
+   * Creates a new user and adds them to the usermap
+   */
   public void addUser() throws NoSuchAlgorithmException {
     User newUser = new User();
     userMap.put(newUser.getPublicKey(), newUser);
   }
+
   /**
    * Adds a user to the usermap
    *
-   * @param  name the name of the user to add
-   * @param  initBalance the initial balance of the user (if any)
+   * @param  initBalance the initial balance of the user
    */
     public void addUser(int balance) throws NoSuchAlgorithmException {
       User newUser = new User(balance);
@@ -38,15 +32,21 @@ public class UserMap {
     }
 
   /**
-   * Returns the user from the map that has the given name (or null)
+   * Returns the user from the map that has the given public key
    *
-   * @param  name the name of the user
-   * @return      the user that corresponds to the given name
+   * @param  publicKey the public key of the user
+   * @return      the user that corresponds to the given name (or null if not found)
    */
   public User getUser(PublicKey publicKey) {
     return userMap.get(publicKey);
   }
 
+  /**
+   * Returns whether of not the user is in the usermap
+   *
+   * @param  publicKey the public key of the user
+   * @return whether or not the user is in the map, a boolean
+   */
   public boolean userExists(PublicKey publicKey) {
     return (userMap.get(publicKey) == null);
   }
@@ -62,6 +62,11 @@ public class UserMap {
     }
   }
 
+  /**
+   * Returns a string version of the user map
+   *
+   * @return the user map in string form
+   */
   public String toString() {
     String ret = "";
     for (PublicKey key : userMap.keySet()) {

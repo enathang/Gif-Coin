@@ -1,17 +1,8 @@
 import java.util.Scanner;
-import java.security.NoSuchAlgorithmException;
+import java.security.*;
+import java.io.IOException;
 import java.util.Arrays;
 
-import java.security.KeyFactory;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
-
-
-// Gif-Bank: The UI and communcation method between ledgers
 public class BlockChainDriver {
 
 	private static void printHelp() {
@@ -36,37 +27,51 @@ public class BlockChainDriver {
   }
 
   // Transferring money
-  private static boolean transfer(BlockChain bc, UserMap users, Scanner s) throws NoSuchAlgorithmException {
+  private static boolean transfer(BlockChain bc, UserMap users, Scanner s) {
     System.out.print("Transfer from(public key): ");
-    PublicKey transferFromPK = stringToPublicKey(s.nextLine());
+    String fromPublicKeyString = s.nextLine();
     System.out.print("Transfer from(secret key): ");
-    PrivateKey transferFromSK = stringToPrivateKey(s.nextLine());
+    String fromPrivateKeyString = s.nextLine();
+    System.out.print("Transfer to(public address): ");
+    String toPublicKeyString = s.nextLine();
 
-		if (!users.userExists(transferFromPK)) {
-			System.out.println("User not found");
+		PublicKey fromPublicKey = null;
+		PrivateKey fromPrivateKey = null;
+		PublicKey toPublicKey = null;
+
+		try {
+			KeyStringConverter conv = new KeyStringConverter();
+			fromPublicKey = conv.stringToPublicKey(fromPublicKeyString);
+			fromPrivateKey = conv.stringToPrivateKey(fromPrivateKeyString);
+			toPublicKey = conv.stringToPublicKey(toPublicKeyString);
+		} catch (GeneralSecurityException e) {
+			System.out.println("One or more of the keys were invalid. Aborting.");
+			System.err.println("Caught GeneralSecurityException: "+e.getMessage());
 			return false;
 		}
 
-    System.out.print("Transfer to(public address): ");
-    PublicKey transferTo = stringToPublicKey(s.nextLine());
+		if (!users.userExists(fromPublicKey)) {
+			System.out.println("From user not found");
+			return false;
+		}
 
-		if (!users.userExists(transferTo)) {
-			System.out.println("User not found");
+		if (!users.userExists(toPublicKey)) {
+			System.out.println("To user not found");
 			return false;
 		}
 
     System.out.print("Amount transferred: ");
     int amt = s.nextInt();
 
-		if (users.getUser(transferFromPK).getBalance() < amt) {
+		if (users.getUser(fromPublicKey).getBalance() < amt) {
 			System.out.println("Insufficient balance for transfer");
 			return false;
 		}
 
 		// Calculate digital signature
 		Block b = new Block(bc.getSize()+1, amt, bc.getHash());
-		b.signBlock(transferFromSK);
-		if (b.isValid(transferFromPK)) {
+		b.signBlock(fromPrivateKey);
+		if (b.isValid(fromPublicKey)) {
 			bc.append(b);
 			return true;
 		} else {
@@ -74,22 +79,6 @@ public class BlockChainDriver {
 			return false;
 		}
   }
-
-	public static PublicKey stringToPublicKey(String key) {
-		byte[] data = base64Decode(key);
-    X509EncodedKeySpec spec = new X509EncodedKeySpec(data);
-    KeyFactory fact = KeyFactory.getInstance("DSA");
-    return fact.generatePublic(spec);
-	}
-
-	public static PrivateKey stringToPrivateKey(String key) {
-		byte[] clear = base64Decode(key);
-    PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(clear);
-    KeyFactory fact = KeyFactory.getInstance("DSA");
-    PrivateKey priv = fact.generatePrivate(keySpec);
-    Arrays.fill(clear, (byte) 0);
-    return priv;
-	}
 
 	private static void printUsers(UserMap users) {
 		System.out.println(users.toString());
@@ -182,8 +171,6 @@ public class BlockChainDriver {
 
 		BlockChain bc = new BlockChain(50);
     UserMap users = new UserMap();
-    users.addUser(50);
-		users.addUser(10);
 		runBlockChainLoop(bc, users);
 	}
 
