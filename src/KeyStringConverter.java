@@ -25,7 +25,7 @@ public class KeyStringConverter {
       KeyFactory fact = KeyFactory.getInstance("EC");
       ret = fact.generatePublic(spec);
     } catch (IOException e) {
-      System.err.println("Caught IOException: "+e.getMessage());
+      System.err.println("Caught IOException: " + e.getMessage());
     }
 
     return ret;
@@ -49,7 +49,7 @@ public class KeyStringConverter {
       Arrays.fill(data, (byte) 0);
       ret = priv;
     } catch (IOException e) {
-      System.err.println("Caught IOException: "+e.getMessage());
+      System.err.println("Caught IOException: " + e.getMessage());
     }
 
     return ret;
@@ -70,7 +70,7 @@ public class KeyStringConverter {
       BASE64Encoder encoder = new BASE64Encoder();
       ret = encoder.encodeBuffer(spec.getEncoded());
     } catch (GeneralSecurityException e) {
-      System.err.println("Caught GeneralSecurityException: "+e.getMessage());
+      System.err.println("Caught GeneralSecurityException: " + e.getMessage());
     }
 
     return ret;
@@ -93,7 +93,7 @@ public class KeyStringConverter {
       ret = encoder.encodeBuffer(packed);
       Arrays.fill(packed, (byte) 0);
     } catch (GeneralSecurityException e) {
-        System.err.println("Caught GeneralSecurityException: "+e.getMessage());
+        System.err.println("Caught GeneralSecurityException: " + e.getMessage());
     }
 
     return ret;

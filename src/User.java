@@ -35,7 +35,7 @@ public class User {
   public User(int initBalance) throws NoSuchAlgorithmException {
     KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
     SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
-    keyGen.initialize(256, random);
+    keyGen.initialize(112, random); // 256
 
     KeyPair pair = keyGen.generateKeyPair();
     secretKey = pair.getPrivate();
@@ -73,6 +73,24 @@ public class User {
    */
   public PublicKey getPublicKey() {
     return publicKey;
+  }
+
+  /**
+   * Subtracts the given amount from the user's balance
+   *
+   * @param amt the amount to subtract
+   */
+  public void withdraw(int amt) {
+    this.balance -= amt;
+  }
+
+  /**
+   * Deposits the given amount to the user's balance
+   *
+   * @param amt the amount to deposit
+   */
+  public void deposit(int amt) {
+    this.balance += amt;
   }
 
   /**

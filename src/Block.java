@@ -1,15 +1,14 @@
-import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
 import java.security.InvalidKeyException;
-import java.util.Arrays;
-import java.util.Random;
-
-import java.math.BigInteger;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
+import java.util.Arrays;
+import java.util.Random;
+import java.nio.ByteBuffer;
+import java.math.BigInteger;
 
 public class Block {
 	int num;
@@ -180,16 +179,12 @@ public class Block {
 	 * @return the block as a readable string
    */
 	public String toString() {
-		String s;
-
-		if (this.prevHash != null) {
-      s = "Block " + this.num + " (Amount: " + this.amount + ", Nonce: "
-				+ this.nonce +", prevHash: " + this.prevHash.toString() + " hash: "
-        + this.hash.toString() + ") ";
-		} else {
-      s = "Block " + this.num + " (Amount: " + this.amount + ", Nonce: "
-				+ this.nonce + ", prevHash: null, hash: " + this.hash.toString() + ") ";
-		}
+		String s = "Block " + this.num;
+		s += " (Amount: " + this.amount;
+		s += ", Nonce: " + this.nonce;
+		s += ", Hash: ";
+		s += ( (this.hash == null) ? "null" : this.hash.toString());
+		s += ") ";
 
 		return s;
 	}

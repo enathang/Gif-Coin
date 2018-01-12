@@ -17,16 +17,6 @@ public class BlockChain {
 	}
 
 	/**
-   * Mine a new block and return it
-   *
-   * @param amount the amount of the transaction
-   */
-	public Block mine(int amount) throws NoSuchAlgorithmException {
-		Block b = new Block(getSize(), amount, this.last.data.hash);
-		return b;
-	}
-
-	/**
    * Return the size of the blockchain
    *
    * @return the size of the blockchain
@@ -87,6 +77,13 @@ public class BlockChain {
 	public boolean isValidBlockChain() {
 		// TODO
 		return true;
+	}
+
+	/**
+   * Prints out the block chain in a readable format
+   */
+	public void printChain() {
+		System.out.println(toString());
 	}
 
 	/**
