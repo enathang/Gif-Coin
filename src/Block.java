@@ -13,27 +13,27 @@ import java.math.BigInteger;
 public class Block {
 	int num;
 	int amount;
-	Hash prevHash;
 	long nonce;
+	Hash prevHash;
 	Hash hash;
 	Block next;
 	byte[] signature;
 
 	/**
-   * Uses the private key to sign the block
-   *
-   * @param  secretKey the secretKey of the user to sign the block
-   */
+     * Uses the private key to sign the block
+     *
+     * @param secretKey the secretKey of the user to sign the block
+     */
 	public void signBlock(PrivateKey secretKey) {
 		try {
 			Signature dsa = Signature.getInstance("SHA1withECDSA");
-	    dsa.initSign(secretKey);
+			dsa.initSign(secretKey);
 
 			Hash signatureHash = calculateHash(0);
-	    byte[] hashByte = signatureHash.data;
-	    dsa.update(hashByte);
+			byte[] hashByte = signatureHash.data;
+			dsa.update(hashByte);
 
-	    this.signature = dsa.sign();
+			this.signature = dsa.sign();
 		} catch (SignatureException | InvalidKeyException e) {
 			System.err.println("Caught Exception: "+e.getMessage());
 		} catch (NoSuchAlgorithmException e) {
@@ -55,11 +55,11 @@ public class Block {
 	}
 
 	/**
-   * Creates a new hash with the given nonce and encryption algorithm
-   *
-   * @param nonce the given nonce
-   * @return the calculated hash
-   */
+     * Creates a new hash with the given nonce and encryption algorithm
+     *
+     * @param nonce the given nonce
+     * @return the calculated hash
+     */
 	private Hash calculateHash(long nonce) {
 		ByteBuffer b = ByteBuffer.allocate(64);
 		b.putInt(this.num);
@@ -81,10 +81,10 @@ public class Block {
 	}
 
 	/**
-   * Mines a nonce for the block
-   *
-   * @return the nonce
-   */
+     * Mines a nonce for the block
+     *
+     * @return the nonce
+     */
 	public long mineNonce() {
 		long nonce = 0;
 		Hash h = calculateHash(nonce);
@@ -113,12 +113,12 @@ public class Block {
 	}
 
 	/**
-   * Returns whether or not the signature on the block was signed by
+     * Returns whether or not the signature on the block was signed by
 	 * the user with the corresponding public key
-   *
-   * @param  publicKey the public key of the user
-   * @return whether or not the specified used signed the block
-   */
+     *
+     * @param  publicKey the public key of the user
+     * @return whether or not the specified used signed the block
+     */
 	public boolean isValidSignature(PublicKey publicKey) {
 		boolean isValid = false;
 
@@ -141,7 +141,7 @@ public class Block {
 	 * Returns the block's number
 	 *
 	 * @return the block's number
-   */
+     */
 	public int getNum() {
 		return this.num;
 	}
@@ -150,7 +150,7 @@ public class Block {
 	 * Returns the block's amount
 	 *
 	 * @return the block's amount
-   */
+     */
 	public int getAmount() {
 		return this.amount;
 	}
@@ -159,7 +159,7 @@ public class Block {
 	 * Returns the block's nonce
 	 *
 	 * @return the block's nonce
-   */
+     */
 	public long getNonce() {
 		return this.nonce;
 	}
@@ -168,16 +168,16 @@ public class Block {
 	 * Returns the previous block's hash
 	 *
 	 * @return the previous block's hash
-   */
+     */
 	public Hash getPrevHash() {
 		return this.prevHash;
 	}
 
 	/**
-	 * Turns the block into a readable string and returns that
+	 * Turns the block into a readable string and returns the string
 	 *
 	 * @return the block as a readable string
-   */
+     */
 	public String toString() {
 		String s = "Block " + this.num;
 		s += " (Amount: " + this.amount;
